@@ -1,0 +1,11 @@
+node_modules/
+dist/
+!vendor/fortune-sheet/core/dist/
+!vendor/fortune-sheet/core/dist/**
+!vendor/fortune-sheet/react/dist/
+!vendor/fortune-sheet/react/dist/**
+logs/
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SSD frontend application shell" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/government-logo/national-emblem-favicon.svg" />
+    <title>Ministry of Statistics & Programme Implementation</title>
+    <style>
+      #initial-loader {
+        --initial-background: oklch(0.985 0.001 220);
+        --initial-muted-foreground: oklch(0.56 0.021 213.5);
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        background: var(--background, var(--initial-background));
+        color: var(--muted-foreground, var(--initial-muted-foreground));
+        font-family: var(--font-sans, "Noto Sans Variable", sans-serif);
+        text-align: center;
+      }
+      html.dark #initial-loader {
+        --initial-background: oklch(0.148 0.004 228.8);
+        --initial-muted-foreground: oklch(0.76 0.014 220);
+      }
+      #initial-loader > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 400;
+        line-height: var(--text-sm--line-height, 1.428571);
+      }
+      #initial-loader svg {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        animation: initial-loader-spin 1s linear infinite;
+      }
+      @keyframes initial-loader-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        #initial-loader svg { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="initial-loader" role="status" aria-live="polite" aria-atomic="true">
+        <div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 6v-3 M16.25 7.75l2.15 -2.15 M18 12h3 M16.25 16.25l2.15 2.15 M12 18v3 M7.75 16.25l-2.15 2.15 M6 12h-3 M7.75 7.75l-2.15 -2.15" />
+          </svg>
+          <span id="initial-loader-text">__SSD_INITIAL_LOADING_TEXT__</span>
+        </div>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const labels = __SSD_INITIAL_LOADING_LABELS__;
+        try {
+          const locale = localStorage.getItem("ssd_selected_locale") === "hi-IN" ? "hi-IN" : "en-IN";
+          document.documentElement.lang = locale;
+          document.documentElement.classList.toggle("dark", localStorage.getItem("ssd.accessibility.darkMode") === "true");
+          document.getElementById("initial-loader-text").textContent = labels[locale];
+        } catch {
+          // Storage can be unavailable; keep the default loader visible.
+        }
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

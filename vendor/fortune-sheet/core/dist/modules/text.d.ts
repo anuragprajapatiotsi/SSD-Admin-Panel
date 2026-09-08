@@ -1,0 +1,10 @@
+import type { Context } from "../context";
+import { Cell } from "../types";
+export declare function hasChinaword(s: string): boolean;
+export declare function clearMeasureTextCache(): void;
+export declare function defaultFont(defaultFontSize: number): string;
+export declare function getFontSet(format: any, defaultFontSize: number, ctx?: Context): string;
+export declare function getMeasureText(value: any, renderCtx: CanvasRenderingContext2D, sheetCtx: Context, fontset?: string): any;
+export declare function isSupportBoundingBox(ctx: CanvasRenderingContext2D): boolean;
+export declare function drawLineInfo(wordGroup: any, cancelLine: string, underLine: string, option: any): void;
+export declare function getCellTextInfo(cell: Cell, renderCtx: CanvasRenderingContext2D, sheetCtx: Context, option: any, ctx?: Context): any;

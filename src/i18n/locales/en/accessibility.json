@@ -1,0 +1,29 @@
+{
+  "trigger": "Accessibility options",
+  "title": "Accessibility options",
+  "description": "Adjust the interface to make content easier to see, read, and navigate.",
+  "text": {
+    "title": "Text adjustment",
+    "description": "Change text size and reading layout.",
+    "size": "Text size",
+    "decrease": "Decrease text size",
+    "reset": "Reset text size",
+    "increase": "Increase text size",
+    "lineHeight": "Line height",
+    "spacing": "Text spacing"
+  },
+  "visual": {
+    "title": "Visual adjustment",
+    "description": "Improve contrast and distinguish interactive content.",
+    "contrast": "High contrast",
+    "darkMode": "Dark mode",
+    "highlightLinks": "Highlight links",
+    "dyslexia": "Dyslexia friendly"
+  },
+  "content": {
+    "title": "Content assistance",
+    "description": "Listen to the current page content.",
+    "screenReader": "Screen reader"
+  },
+  "reset": "Reset accessibility settings"
+}

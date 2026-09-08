@@ -1,0 +1,11 @@
+import { Context, GlobalCache } from "..";
+export declare function dataRangeSelection(ctx: Context, cache: GlobalCache, rangT: string, type: string, value: string): void;
+export declare function getDropdownList(ctx: Context, txt: string): (string | number | boolean)[];
+export declare function validateIdCard(ctx: Context, idCard: string): boolean;
+export declare function validateCellData(ctx: Context, item: any, cellValue: any): any;
+export declare function checkboxChange(ctx: Context, r: number, c: number): void;
+export declare function getFailureText(ctx: Context, item: any): string;
+export declare function getHintText(ctx: Context, item: any): any;
+export declare function cellFocus(ctx: Context, r: number, c: number, clickMode: boolean): void;
+export declare function setDropcownValue(ctx: Context, value: string, arr: any): void;
+export declare function confirmMessage(ctx: Context, generalDialog: any, dataVerification: any): boolean;
