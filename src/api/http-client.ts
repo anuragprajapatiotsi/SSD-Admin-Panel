@@ -365,6 +365,9 @@ function toHeaders(response: AxiosResponse): Headers {
 function resolveApiBaseUrl(configuredUrl: string | undefined): string {
   const trimmedUrl = configuredUrl?.trim();
   if (trimmedUrl) {
+    if (window.location.protocol === "https:" && /^http:\/\//i.test(trimmedUrl)) {
+      return `${window.location.origin}/api`;
+    }
     if (trimmedUrl.startsWith("/") && window.location.protocol === "file:") {
       return "http://localhost:8100";
     }
