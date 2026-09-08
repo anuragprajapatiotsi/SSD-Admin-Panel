@@ -153,14 +153,15 @@ export function VariableMessageInput({ value, onValueChange, variables, variable
           </CommandList>
         ) : <CommandEmpty>{t("variableMessage.empty")}</CommandEmpty>}
         <Tooltip
-          id={`${id}-value`}
           triggerRef={tooltipAnchor}
           isOpen={open && previewVariable !== null}
           onOpenChange={(nextOpen) => { if (!nextOpen) setPreviewVariable(null); }}
           placement="right"
           className="whitespace-pre-wrap break-words"
         >
-          {previewVariable ? variableValues?.[previewVariable]?.trim() || t("variableMessage.unavailable") : null}
+          <span id={`${id}-value`}>
+            {previewVariable ? variableValues?.[previewVariable]?.trim() || t("variableMessage.unavailable") : null}
+          </span>
         </Tooltip>
       </Popover>
     </Field>

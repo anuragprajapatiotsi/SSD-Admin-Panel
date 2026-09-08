@@ -1,7 +1,6 @@
 import { defaultSettings, type Sheet } from "@fortune-sheet/core";
 import { Workbook, type WorkbookInstance } from "@fortune-sheet/react";
 import "@fortune-sheet/react/dist/index.css";
-import "../../../fortune-sheet/packages/react/src/theme.css";
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { applyWorkbookFont } from "@/utils/fortune-font";
@@ -28,7 +27,7 @@ type FortuneSpreadsheetProps = {
 
 const FortuneSpreadsheetComponent = forwardRef<FortuneSpreadsheetHandle, FortuneSpreadsheetProps>(
   function FortuneSpreadsheet({ initialData, loadingFallback, onChange, onDirty, readOnly = false, showToolbar = true }, ref) {
-    const workbookData = useMemo(
+    const workbookData = useMemo<Sheet[]>(
       () => applyWorkbookFont(initialData).map((sheet) => ({ ...sheet, zoomRatio: 0.9 })),
       [initialData],
     );
