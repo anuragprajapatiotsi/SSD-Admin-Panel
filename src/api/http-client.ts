@@ -115,10 +115,7 @@ export async function apiGetBlob(path: string): Promise<{ blob: Blob; headers: H
 }
 
 export async function apiPost<T, TBody extends object>(path: string, body: TBody, options: ApiGetOptions = {}): Promise<ApiResult<T>> {
-  const request = jsonRequest("POST", path, body);
-  const headers = AxiosHeaders.from(request.headers);
-  if (options.acceptLanguage) headers.set("Accept-Language", options.acceptLanguage);
-  return execute<T, TBody>(apiClient, { ...request, headers });
+  return execute<T, TBody>(apiClient, jsonRequest("POST", path, body, options));
 }
 
 export async function apiPatch<T, TBody extends object>(path: string, body: TBody): Promise<ApiResult<T>> {
@@ -225,7 +222,12 @@ export async function apiPublicPostBlob<TBody extends object>(
   });
 }
 
-function jsonRequest<TBody>(method: "POST" | "PATCH" | "PUT", path: string, body: TBody): AxiosRequestConfig<TBody> {
+function jsonRequest<TBody>(
+  method: "POST" | "PATCH" | "PUT",
+  path: string,
+  body: TBody,
+  options: ApiGetOptions = {},
+): AxiosRequestConfig<TBody> {
   return {
     method,
     url: path,
@@ -233,6 +235,7 @@ function jsonRequest<TBody>(method: "POST" | "PATCH" | "PUT", path: string, body
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(options.acceptLanguage ? { "Accept-Language": options.acceptLanguage } : {}),
     },
   };
 }
