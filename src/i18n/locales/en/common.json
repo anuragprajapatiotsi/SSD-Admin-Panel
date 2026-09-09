@@ -125,7 +125,8 @@
     }
   },
   "placeholderPage": {
-    "description": "This page is under construction."
+    "title": "Under Development",
+    "description": "This workflow screen is under development."
   },
   "account": {
     "menu": "Account",
