@@ -113,6 +113,7 @@ const SELECTED_LOCALE_KEY = AUTH_STORAGE_KEYS.selectedLocale;
 export const AUTH_EXPIRED_EVENT = "ssd-auth-expired";
 export const UNIT_CHANGED_EVENT = "ssd-unit-changed";
 export const LOCALE_CHANGED_EVENT = "ssd-locale-changed";
+export const ADMIN_PORTAL_ACCESS_DENIED_ERROR = "ADMIN_PORTAL_ACCESS_DENIED";
 export const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 export const DEFAULT_UNIT_CODE = "SDG";
 export const DEFAULT_LOCALE = "en-IN";
@@ -124,7 +125,9 @@ export async function getCaptchaChallenge(): Promise<CaptchaChallengeResponse> {
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const result = await apiPublicPost<LoginResponse, LoginRequest>("/auth/login", payload);
+  const currentUser = mapCurrentUser(result.data);
 
+  assertAdminPortalAccess(currentUser);
   storeAuthSession(result.data);
   return result.data;
 }
@@ -132,6 +135,7 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
 export async function loadCurrentUser(): Promise<CurrentUser> {
   const result = await apiGet<CurrentProfileResponse>("/auth/me");
   const currentUser = mapCurrentUser(result.data);
+  assertAdminPortalAccess(currentUser);
   window.localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
   return currentUser;
 }
@@ -147,15 +151,18 @@ export function getLocalCurrentUser(): CurrentUser {
   }
 
   return {
-    displayName: "SSD Admin",
-    email: "ssd.admin@mospi.gov.in",
-    unitCode: DEFAULT_UNIT_CODE,
-    roles: ["SUPER_ADMIN"],
+    displayName: "",
+    email: "",
+    roles: [],
   };
 }
 
 export function isSuperAdmin(user: CurrentUser): boolean {
   return user.roles.some((role) => ["SUPER_ADMIN", "SUPERADMIN"].includes(role.toUpperCase()));
+}
+
+export function isAdminPortalAccessDeniedError(error: unknown): boolean {
+  return error instanceof Error && error.message === ADMIN_PORTAL_ACCESS_DENIED_ERROR;
 }
 
 export function isPillarAdmin(user: CurrentUser): boolean {
@@ -315,6 +322,14 @@ function storeAuthSession(response: LoginResponse): void {
     window.localStorage.setItem(SELECTED_UNIT_CODE_KEY, defaultPillarCode);
   }
   markSessionActivity();
+}
+
+function assertAdminPortalAccess(user: CurrentUser): void {
+  // Temporary client-side gate. The backend must ultimately enforce the same
+  // role requirement before issuing tokens and on every admin endpoint.
+  if (isSuperAdmin(user)) return;
+  clearStoredAuth(false);
+  throw new Error(ADMIN_PORTAL_ACCESS_DENIED_ERROR);
 }
 
 export function clearAuthSession(): void {

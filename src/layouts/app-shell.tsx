@@ -28,6 +28,7 @@ import { Popover, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Loader } from "@/components/common/loader";
 import {
   Sidebar,
   SidebarContent,
@@ -50,11 +51,11 @@ import {
   AUTH_EXPIRED_EVENT,
   DEFAULT_UNIT_CODE,
   clearAuthSession,
-  getLocalCurrentUser,
   getPillarRootCode,
   getSelectedLocale,
   getSelectedUnitCode,
   hasActiveSession,
+  isAdminPortalAccessDeniedError,
   isPillarAdmin,
   isSessionIdleExpired,
   isUnitInPillar,
@@ -66,6 +67,7 @@ import {
   markSessionActivity,
   selectedUnitGlobalMappingEnabled,
   setSelectedUnitCode,
+  type CurrentUser,
   type UnitOption,
 } from "../api/session.api";
 import { getFrameworkHierarchy, listFrameworkEditions } from "../api/framework.api";
@@ -88,21 +90,68 @@ import {
 import { cn } from "@/lib/utils";
 
 export function AppShell() {
+  return <AdminPortalGate />;
+}
+
+function AdminPortalGate() {
+  const { t } = useTranslation("common");
+  const navigate = useNavigate();
+  const [verifiedUser, setVerifiedUser] = useState<CurrentUser | null>(null);
+
+  useEffect(() => {
+    if (!hasActiveSession() || isSessionIdleExpired()) {
+      clearAuthSession();
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    let cancelled = false;
+    markSessionActivity();
+    void loadCurrentUser()
+      .then((currentUser) => {
+        if (!cancelled) setVerifiedUser(currentUser);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        const accessDenied = isAdminPortalAccessDeniedError(error);
+        if (!accessDenied) clearAuthSession();
+        navigate("/login", {
+          replace: true,
+          state: accessDenied
+            ? { portalAccessDenied: true }
+            : undefined,
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  if (!verifiedUser) {
+    return (
+      <Loader
+        className="min-h-svh w-full"
+        text={t("loading.page", { defaultValue: "Loading page..." })}
+      />
+    );
+  }
+
   return (
     <SidebarProvider className="h-svh min-h-0 overflow-hidden">
-      <AppShellContent />
+      <AppShellContent initialUser={verifiedUser} />
     </SidebarProvider>
   );
 }
 
-function AppShellContent() {
+function AppShellContent({ initialUser }: { initialUser: CurrentUser }) {
   const { t } = useTranslation(["common", "accessibility"]);
   const translateNavigationLabel = useCallback(
     (entry: { label: string; labelKey?: string }) =>
       entry.labelKey ? t(entry.labelKey, { ns: "common", defaultValue: entry.label }) : entry.label,
     [t],
   );
-  const [user, setUser] = useState(() => getLocalCurrentUser());
+  const [user] = useState(initialUser);
   const userDisplayName = formatUserDisplayName(user.displayName, user.email);
   const userRole = formatRoleLabel(user.roles[0]);
   const location = useLocation();
@@ -124,7 +173,6 @@ function AppShellContent() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationSummary, setNotificationSummary] = useState({ unreadCount: 0 });
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
-  const currentUserRefreshStartedRef = useRef(false);
   const [selectedUnitCode, setSelectedUnitCodeState] = useState(() => resolveInitialPillarSelection(user));
   const [selectedLocale, setSelectedLocaleState] = useState(() => getSelectedLocale());
   const [availableUnits, setAvailableUnits] = useState<UnitOption[]>([
@@ -268,17 +316,6 @@ function AppShellContent() {
     }
 
     markSessionActivity();
-    if (!currentUserRefreshStartedRef.current) {
-      currentUserRefreshStartedRef.current = true;
-      void loadCurrentUser()
-        .then((loadedUser) => {
-          setUser(loadedUser);
-        })
-        .catch(() => {
-          clearAuthSession();
-          navigate("/login", { replace: true });
-        });
-    }
   }, [location.pathname, navigate, pillarAdmin]);
 
   useEffect(() => {
@@ -1089,7 +1126,7 @@ function usePrefersReducedMotion(): boolean {
   return prefersReducedMotion;
 }
 
-function resolveInitialPillarSelection(user: ReturnType<typeof getLocalCurrentUser>): string {
+function resolveInitialPillarSelection(user: CurrentUser): string {
   const storedUnitCode = getSelectedUnitCode();
   if (isSuperAdmin(user)) return storedUnitCode;
   if (isPillarAdmin(user)) {
@@ -1103,7 +1140,7 @@ function resolveInitialPillarSelection(user: ReturnType<typeof getLocalCurrentUs
   return (user.unitCode || storedUnitCode || DEFAULT_UNIT_CODE).trim().toUpperCase();
 }
 
-function filterNavigationForUser(modules: typeof navigationModules, user: ReturnType<typeof getLocalCurrentUser>): typeof navigationModules {
+function filterNavigationForUser(modules: typeof navigationModules, user: CurrentUser): typeof navigationModules {
   if (isSuperAdmin(user)) {
     // The module definitions and routes stay intact; only their super-admin
     // navigation entries are hidden.

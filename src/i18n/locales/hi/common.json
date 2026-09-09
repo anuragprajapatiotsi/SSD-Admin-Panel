@@ -125,7 +125,8 @@
     }
   },
   "placeholderPage": {
-    "description": "यह पृष्ठ निर्माणाधीन है।"
+    "title": "निर्माणाधीन",
+    "description": "यह कार्यप्रवाह स्क्रीन अभी निर्माणाधीन है।"
   },
   "account": {
     "menu": "खाता",
@@ -802,7 +803,7 @@
   "auth": {
     "pageTitles": { "login": "लॉगिन", "forgotPassword": "पासवर्ड भूल गए", "newPassword": "नया पासवर्ड बनाएँ" },
     "portal": { "division": "सांख्यिकीय सामाजिक प्रभाग", "title": "SSD एडमिन पैनल", "description": "एक विश्वसनीय कार्यक्षेत्र के माध्यम से आधिकारिक सांख्यिकीय डेटा, सत्यापन कार्यप्रवाह और प्रकाशन उपकरणों तक पहुँचें।", "benefitsLabel": "पोर्टल के लाभ", "benefitAccess": "अधिकृत अधिकारियों के लिए नियंत्रित पहुँच", "benefitValidation": "सुरक्षित सत्यापन और समीक्षा कार्यप्रवाह", "benefitReporting": "आधिकारिक रिपोर्टिंग के लिए विश्वसनीय डेटा", "official": "आधिकारिक", "governmentWorkspace": "सरकारी कार्यक्षेत्र" },
-    "login": { "title": "अपने खाते में साइन इन करें", "description": "जारी रखने के लिए अपने आधिकारिक क्रेडेंशियल का उपयोग करें।", "emailLabel": "आधिकारिक ईमेल या उपयोगकर्ता नाम", "emailPlaceholder": "ईमेल या उपयोगकर्ता नाम दर्ज करें", "passwordLabel": "पासवर्ड", "passwordPlaceholder": "पासवर्ड दर्ज करें", "unsuccessful": "साइन इन असफल रहा", "forgotPassword": "पासवर्ड भूल गए?", "signIn": "साइन इन करें", "protectedTitle": "आपकी पहुँच सुरक्षित है", "protectedDescription": "केवल अधिकृत सरकारी उपयोगकर्ता ही इस प्रणाली तक पहुँच सकते हैं।" },
+    "login": { "title": "अपने खाते में साइन इन करें", "description": "जारी रखने के लिए अपने आधिकारिक क्रेडेंशियल का उपयोग करें।", "emailLabel": "आधिकारिक ईमेल या उपयोगकर्ता नाम", "emailPlaceholder": "ईमेल या उपयोगकर्ता नाम दर्ज करें", "passwordLabel": "पासवर्ड", "passwordPlaceholder": "पासवर्ड दर्ज करें", "unsuccessful": "साइन इन असफल रहा", "accessDeniedTitle": "पोर्टल पहुँच अस्वीकृत", "accessDeniedDescription": "केवल सुपर एडमिनिस्ट्रेटर ही SSD एडमिन पैनल तक पहुँच सकते हैं।", "forgotPassword": "पासवर्ड भूल गए?", "signIn": "साइन इन करें", "protectedTitle": "आपकी पहुँच सुरक्षित है", "protectedDescription": "केवल अधिकृत सरकारी उपयोगकर्ता ही इस प्रणाली तक पहुँच सकते हैं।" },
     "recovery": { "back": "वापस", "secureTitle": "सुरक्षित खाता पुनर्प्राप्ति", "secureDescription": "इस प्रक्रिया के दौरान आपका सत्यापन विवरण सुरक्षित रहता है।", "officialEmailFallback": "आपका आधिकारिक ईमेल" },
     "forgot": { "title": "पासवर्ड भूल गए?", "description": "अपना आधिकारिक ईमेल पता दर्ज करें और हम आपको पासवर्ड रीसेट लिंक भेजेंगे।", "emailLabel": "आधिकारिक ईमेल", "emailPlaceholder": "officer@mospi.gov.in", "emailHelp": "अपने SSD खाते से संबद्ध ईमेल का उपयोग करें।", "submit": "रीसेट लिंक भेजें", "sending": "लिंक भेजा जा रहा है...", "resendCountdown": "{{seconds}} सेकंड में फिर भेजें", "feedback": { "linkSent": "रीसेट लिंक भेजा गया", "linkSentDescription": "पासवर्ड रीसेट करने के निर्देशों के लिए {{email}} देखें।", "linkNotSent": "पासवर्ड रीसेट लिंक नहीं भेजा जा सका।", "sendLinkError": "रीसेट लिंक नहीं भेजा जा सका" }, "validation": { "required": "आधिकारिक ईमेल आवश्यक है।", "invalid": "एक मान्य आधिकारिक ईमेल पता दर्ज करें।" } },
     "otp": { "title": "OTP दर्ज करें", "description": "{{email}} के लिए 6-अंकीय सत्यापन कोड दर्ज करें।", "codeLabel": "सत्यापन कोड", "verify": "OTP सत्यापित करें", "validation": { "length": "पूरा 6-अंकीय सत्यापन कोड दर्ज करें।", "numeric": "सत्यापन कोड में केवल अंक होने चाहिए।" } },

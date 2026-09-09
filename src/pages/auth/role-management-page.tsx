@@ -1,11 +1,13 @@
 import { PageHeader, PageSection } from "@/components/common/page-layout";
 import { SearchInput } from "@/components/common/search-input";
+import { StatusDot } from "@/components/common/status-badge";
+import { normalizeStatusVariant } from "@/components/common/status-variants";
+import { CustomTabs, type TabItem } from "@/components/common/custom-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createDataTableColumnHelper, DataTable, useDataTable } from "@/components/data-table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { useConfirmation } from "@/hooks/use-confirmation";
 import { cn } from "@/lib/utils";
@@ -49,6 +51,12 @@ export function RoleManagementPage() {
     });
   }, [rolesQuery.data, scope, search, status]);
 
+  const statusTabs = useMemo<TabItem[]>(() => [
+    { value: "ALL", label: t("pages.roleManagement.status.all"), icon: <StatusDot variant={normalizeStatusVariant("ALL")} aria-hidden="true" />, content: null },
+    { value: "ACTIVE", label: t("pages.roleManagement.status.active"), icon: <StatusDot variant={normalizeStatusVariant("ACTIVE")} aria-hidden="true" />, content: null },
+    { value: "INACTIVE", label: t("pages.roleManagement.status.inactive"), icon: <StatusDot variant={normalizeStatusVariant("INACTIVE")} aria-hidden="true" />, content: null },
+  ], [t]);
+
   const updateStatus = useCallback(async (role: AuthRole, isActive: boolean) => {
     try {
       await updateMutation.mutateAsync({ roleCode: role.role_code, payload: { role_scope: role.role_scope ?? "UNIT", is_active: isActive } });
@@ -79,5 +87,5 @@ export function RoleManagementPage() {
   ]), [deleteMutation.isPending, deleteRole, navigate, statusUpdatingRole, t, updateStatus]);
   const table = useDataTable({ columns, data: roles, getRowId: (role) => role.role_code, enableRowSelection: false, initialState: { pagination: { pageIndex: 0, pageSize: 10 } } });
 
-  return <PageSection className="flex min-w-0 flex-col gap-4"><PageHeader><div><h2>{t("pages.roleManagement.title")}</h2><p>{t("pages.roleManagement.description")}</p></div><Button onPress={() => navigate("/authentication/roles/new")}><IconPlus data-icon="inline-start" aria-hidden="true" />{t("pages.roleManagement.actions.new")}</Button></PageHeader><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><SearchInput className="w-full sm:max-w-sm" value={search} onValueChange={setSearch} label={t("pages.roleManagement.search")} placeholder={t("pages.roleManagement.search")} clearLabel={t("dataTable.clearSearch")} /><Select aria-label={t("pages.roleManagement.filters.scope")} selectedKey={scope} onSelectionChange={(key) => setScope(String(key))}><SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem id="ALL">{t("pages.roleManagement.scopes.all")}</SelectItem><SelectItem id="UNIT">{t("pages.roleManagement.scopes.unit")}</SelectItem><SelectItem id="GLOBAL">{t("pages.roleManagement.scopes.global")}</SelectItem></SelectContent></Select></div><Tabs variant="underline" selectedKey={status} onSelectionChange={(key) => setStatus(String(key))}><TabsList aria-label={t("pages.roleManagement.status.tabsLabel")}><TabsTrigger id="ALL">{t("pages.roleManagement.status.all")}</TabsTrigger><TabsTrigger id="ACTIVE">{t("pages.roleManagement.status.active")}</TabsTrigger><TabsTrigger id="INACTIVE">{t("pages.roleManagement.status.inactive")}</TabsTrigger></TabsList><TabsContent id={status}><DataTable table={table} ariaLabel={t("pages.roleManagement.tableLabel")} isLoading={rolesQuery.isFetching} loadingMessage={t("pages.roleManagement.states.loading")} error={rolesQuery.error instanceof Error ? rolesQuery.error.message : rolesQuery.error ? t("pages.roleManagement.states.loadError") : undefined} emptyMessage={t(search || scope !== "ALL" || status !== "ALL" ? "pages.roleManagement.states.noResults" : "pages.roleManagement.states.empty")} noResultsMessage={t("pages.roleManagement.states.noResults")} onRetry={() => void rolesQuery.refetch()} totalCount={roles.length} getRowClassName={(role) => cn(role.role_code === highlightedRoleCode && "bg-primary/10 transition-colors")} /></TabsContent></Tabs></PageSection>;
+  return <PageSection className="flex min-w-0 flex-col gap-4"><PageHeader><div><h2>{t("pages.roleManagement.title")}</h2><p>{t("pages.roleManagement.description")}</p></div><Button onPress={() => navigate("/authentication/roles/new")}><IconPlus data-icon="inline-start" aria-hidden="true" />{t("pages.roleManagement.actions.new")}</Button></PageHeader><div className="flex flex-col gap-3"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><SearchInput className="w-full sm:max-w-sm" value={search} onValueChange={setSearch} label={t("pages.roleManagement.search")} placeholder={t("pages.roleManagement.search")} clearLabel={t("dataTable.clearSearch")} /><Select aria-label={t("pages.roleManagement.filters.scope")} selectedKey={scope} onSelectionChange={(key) => setScope(String(key))}><SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem id="ALL">{t("pages.roleManagement.scopes.all")}</SelectItem><SelectItem id="UNIT">{t("pages.roleManagement.scopes.unit")}</SelectItem><SelectItem id="GLOBAL">{t("pages.roleManagement.scopes.global")}</SelectItem></SelectContent></Select></div><CustomTabs items={statusTabs} value={status} onValueChange={setStatus} defaultValue="ALL" variant="underline" ariaLabel={t("pages.roleManagement.status.tabsLabel")} compact /></div><DataTable table={table} ariaLabel={t("pages.roleManagement.tableLabel")} isLoading={rolesQuery.isFetching} loadingMessage={t("pages.roleManagement.states.loading")} error={rolesQuery.error instanceof Error ? rolesQuery.error.message : rolesQuery.error ? t("pages.roleManagement.states.loadError") : undefined} emptyMessage={t(search || scope !== "ALL" || status !== "ALL" ? "pages.roleManagement.states.noResults" : "pages.roleManagement.states.empty")} noResultsMessage={t("pages.roleManagement.states.noResults")} onRetry={() => void rolesQuery.refetch()} totalCount={roles.length} getRowClassName={(role) => cn(role.role_code === highlightedRoleCode && "bg-primary/10 transition-colors")} /></PageSection>;
 }

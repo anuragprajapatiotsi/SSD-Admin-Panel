@@ -18,12 +18,13 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
   getCaptchaChallenge,
   getPostLoginPath,
+  isAdminPortalAccessDeniedError,
   loadCurrentUser,
   login,
   type CaptchaChallengeResponse,
@@ -40,6 +41,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation("common");
   const [captcha, setCaptcha] = useState<CaptchaChallengeResponse | null>(null);
   const [isCaptchaLoading, setIsCaptchaLoading] = useState(true);
@@ -90,6 +92,15 @@ export function LoginPage() {
     return () => window.clearTimeout(timeout);
   }, [captcha, loadCaptcha, resetField]);
 
+  useEffect(() => {
+    const state = location.state as { portalAccessDenied?: boolean } | null;
+    if (!state?.portalAccessDenied) return;
+    toast.error(t("auth.login.accessDeniedTitle"), {
+      description: t("auth.login.accessDeniedDescription"),
+    });
+    navigate("/login", { replace: true, state: null });
+  }, [location.state, navigate, t]);
+
   async function submitLogin(values: LoginFormValues) {
     if (!captcha || isCaptchaExpired) {
       setError("captchaResponse", { type: "server", message: "pages.login.captcha.expired" });
@@ -105,31 +116,36 @@ export function LoginPage() {
       const fallbackRoleUnitCode = response.roles.find(
         (role) => role.unit_code,
       )?.unit_code;
-      const currentUser = await loadCurrentUser().catch(() => ({
-        displayName:
-          response.user_profile.display_name ??
-          response.user_profile.username ??
-          "SSD User",
-        email: response.user_profile.email ?? "",
-        unitCode:
-          response.user_profile.owning_unit_code ??
-          response.user_profile.default_unit_code ??
-          response.user_profile.unit_code ??
-          fallbackRoleUnitCode,
-        defaultUnitCode: response.user_profile.default_unit_code,
-        roles: response.roles.map(
-          (role) =>
-            role.role_code ??
-            role.code ??
-            role.role_name ??
-            role.name ??
-            "USER",
-        ),
-      }));
+      const currentUser = await loadCurrentUser().catch((error) => {
+        if (isAdminPortalAccessDeniedError(error)) throw error;
+        return {
+          displayName:
+            response.user_profile.display_name ??
+            response.user_profile.username ??
+            "SSD User",
+          email: response.user_profile.email ?? "",
+          unitCode:
+            response.user_profile.owning_unit_code ??
+            response.user_profile.default_unit_code ??
+            response.user_profile.unit_code ??
+            fallbackRoleUnitCode,
+          defaultUnitCode: response.user_profile.default_unit_code,
+          roles: response.roles.map(
+            (role) =>
+              role.role_code ??
+              role.code ??
+              role.role_name ??
+              role.name ??
+              "USER",
+          ),
+        };
+      });
       navigate(getPostLoginPath(currentUser.roles), { replace: true });
     } catch (error) {
-      toast.error(t("auth.login.unsuccessful"), {
+      const accessDenied = isAdminPortalAccessDeniedError(error);
+      toast.error(t(accessDenied ? "auth.login.accessDeniedTitle" : "auth.login.unsuccessful"), {
         description: getLoginErrorMessage(error, {
+          accessDenied: t("auth.login.accessDeniedDescription"),
           captcha: t("pages.login.captcha.incorrect"),
           credentials: t("pages.login.invalidCredentials"),
           generic: t("pages.login.genericError"),
@@ -297,7 +313,8 @@ export function LoginPage() {
   );
 }
 
-function getLoginErrorMessage(error: unknown, messages: { captcha: string; credentials: string; generic: string }): string {
+function getLoginErrorMessage(error: unknown, messages: { accessDenied: string; captcha: string; credentials: string; generic: string }): string {
+  if (isAdminPortalAccessDeniedError(error)) return messages.accessDenied;
   const message = error instanceof Error ? error.message : "";
   if (message.toLowerCase().includes("captcha")) return messages.captcha;
   if (message.toLowerCase().includes("invalid"))
