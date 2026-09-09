@@ -13,7 +13,17 @@ function unitLabel(unit: AuthUnit): string {
   return unit.unit_name?.trim() || unit.display_name?.trim() || unit.name?.trim() || formatCodeLabel(unit.unit_code);
 }
 
+function isGlobalAccessValue(value: unknown): boolean {
+  const normalized = String(value ?? "").trim().toUpperCase().replace(/[\s_-]+/g, "");
+  return normalized === "GLOBAL" || normalized === "GLOBALACCESS";
+}
+
+function isGlobalAccessUnit(unit: AuthUnit): boolean {
+  return [unit.unit_code, unit.unit_name, unit.display_name, unit.name].some(isGlobalAccessValue);
+}
+
 export function RoleAssignmentFields<TValues extends FieldValues>({
+  allowGlobalAccess = true,
   className,
   control,
   idPrefix,
@@ -25,6 +35,7 @@ export function RoleAssignmentFields<TValues extends FieldValues>({
   unitName,
   units,
 }: {
+  allowGlobalAccess?: boolean;
   className?: string;
   control: Control<TValues>;
   idPrefix: string;
@@ -65,12 +76,19 @@ export function RoleAssignmentFields<TValues extends FieldValues>({
       <Controller control={control} name={unitName} render={({ field }) => (
         <Field className="gap-1" data-invalid={Boolean(unitError)}>
           <FieldLabel htmlFor={unitId}>{t("pages.userManagement.fields.pillar")} <span aria-hidden="true">*</span></FieldLabel>
-          <Select aria-label={t("pages.userManagement.fields.pillar")} selectedKey={String(field.value || "GLOBAL")} isDisabled={isDisabled} onSelectionChange={(key) => field.onChange(String(key ?? "GLOBAL"))}>
+          <Select
+            aria-label={t("pages.userManagement.fields.pillar")}
+            selectedKey={!allowGlobalAccess && isGlobalAccessValue(field.value)
+              ? null
+              : String(field.value || (allowGlobalAccess ? "GLOBAL" : "")) || null}
+            isDisabled={isDisabled}
+            onSelectionChange={(key) => field.onChange(String(key ?? (allowGlobalAccess ? "GLOBAL" : "")))}
+          >
             <SelectTrigger id={unitId} aria-invalid={Boolean(unitError)}><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem id="GLOBAL">{t("pages.userManagement.assignRole.globalAccess")}</SelectItem>
-                {units.map((unit) => (
+                {allowGlobalAccess ? <SelectItem id="GLOBAL">{t("pages.userManagement.assignRole.globalAccess")}</SelectItem> : null}
+                {units.filter((unit) => allowGlobalAccess || !isGlobalAccessUnit(unit)).map((unit) => (
                   <SelectItem id={unit.unit_code} key={unit.unit_code} textValue={unitLabel(unit)}>
                     {unitLabel(unit)}
                   </SelectItem>
@@ -78,7 +96,9 @@ export function RoleAssignmentFields<TValues extends FieldValues>({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <FieldDescription>{t("pages.userManagement.assignRole.pillarHelp")}</FieldDescription>
+          <FieldDescription>
+            {t(allowGlobalAccess ? "pages.userManagement.assignRole.pillarHelp" : "pages.userManagement.assignRole.specificPillarHelp")}
+          </FieldDescription>
           <FieldError>{unitError}</FieldError>
         </Field>
       )} />

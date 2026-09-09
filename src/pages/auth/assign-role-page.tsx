@@ -178,6 +178,7 @@ export function AssignRolePage() {
 
             <CardContent className="flex flex-col gap-6">
               <RoleAssignmentFields
+                allowGlobalAccess={false}
                 control={control}
                 idPrefix="assign"
                 isDisabled={isSubmitting}
