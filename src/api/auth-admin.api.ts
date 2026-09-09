@@ -148,6 +148,7 @@ export type RolePayload = {
 };
 
 export type RoleUpdatePayload = {
+  role_name?: string;
   role_scope?: string;
   is_active?: boolean;
 };

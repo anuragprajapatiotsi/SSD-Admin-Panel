@@ -11,9 +11,14 @@ import { flatNavigation, type NavigationPath } from "./navigation";
 const DataApiPage = lazy(() => import("../pages/ingestion/data-api-page").then((module) => ({ default: module.DataApiPage })));
 const DataApiEditorPage = lazy(() => import("../pages/ingestion/data-api-editor-page").then((module) => ({ default: module.DataApiEditorPage })));
 
-const AccessManagementPage = lazy(() =>
-  import("../pages/auth/access-management-page").then((module) => ({
-    default: module.AccessManagementPage,
+const RoleManagementPage = lazy(() =>
+  import("../pages/auth/role-management-page").then((module) => ({
+    default: module.RoleManagementPage,
+  })),
+);
+const RolePermissionsEditPage = lazy(() =>
+  import("../pages/auth/role-permissions-edit-page").then((module) => ({
+    default: module.RolePermissionsEditPage,
   })),
 );
 const AuditSessionsPage = lazy(() =>
@@ -343,7 +348,7 @@ function page(element: ReactNode, title?: string, titleKey?: string, loadingLayo
 }
 
 const navigationPages: Record<string, ReactNode> = {
-  "/authentication/permission-matrix": page(<AccessManagementPage />),
+  "/authentication/permission-matrix": page(<RoleManagementPage />),
   "/authentication/users": page(<UserAdministrationPage />),
   "/authentication/audit-sessions": page(<AuditSessionsPage />),
   "/framework": page(<FrameworkPage />),
@@ -433,6 +438,8 @@ const applicationRoutes: readonly ApplicationRouteDefinition[] = [
   { path: "ingestion/sources-ministries/:organizationCode/officers/create", title: "Create Officer", titleKey: "pages.sourcesMinistries.createOfficerTitle", element: <CreateOfficerPage /> },
   { path: "ingestion/sources-ministries/:organizationCode/officers/:officerCode/edit", title: "Edit Officer", titleKey: "pages.sourcesMinistries.editOfficerTitle", element: <EditOfficerPage /> },
   { path: "authentication/users/new", title: "Create New User", titleKey: "pages.userManagement.createTitle", element: <NewUserPage /> },
+  { path: "authentication/roles/new", title: "Create Role", titleKey: "pages.roleManagement.editor.createTitle", element: <RolePermissionsEditPage /> },
+  { path: "authentication/roles/:roleCode/edit", title: "Edit Role", titleKey: "pages.roleManagement.editor.editTitle", element: <RolePermissionsEditPage /> },
   { path: "authentication/users/:username/edit", title: "Edit User", titleKey: "pages.userManagement.editTitle", element: <EditUserPage /> },
   { path: "authentication/users/:username/roles", title: "Assign Role", titleKey: "pages.userManagement.assignRoleTitle", element: <AssignRolePage /> },
   { path: "authentication/users/:username/review-levels", title: "Review Level", titleKey: "pages.userManagement.reviewLevelTitle", element: <ReviewLevelPage /> },
