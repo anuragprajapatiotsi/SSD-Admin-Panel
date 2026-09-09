@@ -167,6 +167,7 @@ export function NewUserForm({ accountLocked = false, initialValues = NEW_USER_DE
                         ) : null}
                       </div>
                       <RoleAssignmentFields
+                        allowGlobalAccess={false}
                         className="grid gap-3 sm:grid-cols-2"
                         control={control}
                         idPrefix={`new-user-role-${index}`}
@@ -186,7 +187,7 @@ export function NewUserForm({ accountLocked = false, initialValues = NEW_USER_DE
                         size="sm"
                         variant="ghost"
                         isDisabled={isSubmitting || accountLocked}
-                        onPress={() => appendRoleAssignment({ roleCode: "", unitCode: "GLOBAL" })}
+                        onPress={() => appendRoleAssignment({ roleCode: "", unitCode: "" })}
                       >
                         <IconPlus data-icon="inline-start" aria-hidden="true" />
                         {t("pages.userManagement.actions.addAnotherRole")}

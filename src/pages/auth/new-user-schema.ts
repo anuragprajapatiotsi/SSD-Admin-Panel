@@ -12,7 +12,14 @@ const requiredName = (t: Translate, field: "firstName" | "lastName") => z
 export function createNewUserSchema(t: Translate) {
   const roleAssignmentSchema = z.object({
     roleCode: z.string().trim().min(1, t("pages.userManagement.validation.selectRole")),
-    unitCode: z.string().trim().min(1, t("pages.userManagement.validation.selectPillar")),
+    unitCode: z
+      .string()
+      .trim()
+      .min(1, t("pages.userManagement.validation.selectPillar"))
+      .refine(
+        (value) => !["GLOBAL", "GLOBALACCESS"].includes(value.toUpperCase().replace(/[\s_-]+/g, "")),
+        t("pages.userManagement.validation.selectPillar"),
+      ),
   });
 
   return z.object({
@@ -69,5 +76,5 @@ export const NEW_USER_DEFAULT_VALUES: NewUserFormValues = {
   confirmPassword: "",
   firstName: "",
   lastName: "",
-  roleAssignments: [{ roleCode: "", unitCode: "GLOBAL" }],
+  roleAssignments: [{ roleCode: "", unitCode: "" }],
 };
