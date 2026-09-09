@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { IconAlertCircle, IconPlus, IconShieldCheck, IconTrash, IconUserPlus } from "@tabler/icons-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFieldArray, useForm, useWatch, type FieldError as HookFormFieldError, type UseFormRegisterReturn } from "react-hook-form";
 import { listAuthRoles, listAuthUnits, type AuthRole, type AuthUnit } from "../../api/auth-admin.api";
@@ -128,22 +128,10 @@ export function NewUserForm({ accountLocked = false, initialValues = NEW_USER_DE
             />
           </FieldGroup>
 
-          <section className="flex flex-col gap-4 border-t pt-5" aria-labelledby="new-user-access-heading">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 id="new-user-access-heading" className="text-sm font-semibold">{t("pages.userManagement.form.rolesAndPillars")}</h3>
-                <p className="text-xs text-muted-foreground">{t("pages.userManagement.form.rolesAndPillarsDescription")}</p>
-              </div>
-              <Button
-                className="w-fit"
-                type="button"
-                variant="outline"
-                isDisabled={isSubmitting || accountLocked || isLoadingOptions || Boolean(optionsError)}
-                onPress={() => appendRoleAssignment({ roleCode: "", unitCode: "GLOBAL" })}
-              >
-                <IconPlus data-icon="inline-start" aria-hidden="true" />
-                {t("pages.userManagement.actions.addAnotherRole")}
-              </Button>
+          <section className="flex flex-col gap-3 border-t pt-5" aria-labelledby="new-user-access-heading">
+            <div>
+              <h3 id="new-user-access-heading" className="text-sm font-semibold">{t("pages.userManagement.form.accessAndRoles")}</h3>
+              <p className="text-xs text-muted-foreground">{t("pages.userManagement.form.accessAndRolesDescription")}</p>
             </div>
             {isLoadingOptions ? (
               <Loader text={t("pages.userManagement.form.loadingRolesAndPillars")} />
@@ -157,39 +145,55 @@ export function NewUserForm({ accountLocked = false, initialValues = NEW_USER_DE
                 </Button>
               </Alert>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {roleAssignmentFields.map((assignment, index) => (
-                  <div className="flex flex-col gap-4 rounded-md border p-4" key={assignment.id}>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        {t("pages.userManagement.form.roleAssignment", { number: index + 1 })}
-                      </p>
-                      {roleAssignmentFields.length > 1 ? (
-                        <Button
-                          type="button"
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={t("pages.userManagement.actions.removeRoleAssignment", { number: index + 1 })}
-                          isDisabled={isSubmitting || accountLocked}
-                          onPress={() => removeRoleAssignment(index)}
-                        >
-                          <IconTrash aria-hidden="true" />
-                        </Button>
-                      ) : null}
+                  <Fragment key={assignment.id}>
+                    <div className="flex flex-col gap-3 rounded-md bg-slate-50 p-3 dark:bg-slate-900/40">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-medium">
+                          {t("pages.userManagement.form.roleNumber", { number: index + 1 })}
+                        </p>
+                        {index > 0 ? (
+                          <Button
+                            type="button"
+                            size="icon-sm"
+                            variant="ghost"
+                            aria-label={t("pages.userManagement.actions.removeRoleAssignment", { number: index + 1 })}
+                            isDisabled={isSubmitting || accountLocked}
+                            onPress={() => removeRoleAssignment(index)}
+                          >
+                            <IconTrash aria-hidden="true" />
+                          </Button>
+                        ) : null}
+                      </div>
+                      <RoleAssignmentFields
+                        allowGlobalAccess={false}
+                        className="grid gap-3 sm:grid-cols-2"
+                        control={control}
+                        idPrefix={`new-user-role-${index}`}
+                        isDisabled={isSubmitting || accountLocked}
+                        roleError={errors.roleAssignments?.[index]?.roleCode?.message}
+                        roleName={`roleAssignments.${index}.roleCode`}
+                        roles={roles}
+                        unitError={errors.roleAssignments?.[index]?.unitCode?.message}
+                        unitName={`roleAssignments.${index}.unitCode`}
+                        units={units}
+                      />
                     </div>
-                    <RoleAssignmentFields
-                      className="grid gap-4 md:grid-cols-2"
-                      control={control}
-                      idPrefix={`new-user-role-${index}`}
-                      isDisabled={isSubmitting || accountLocked}
-                      roleError={errors.roleAssignments?.[index]?.roleCode?.message}
-                      roleName={`roleAssignments.${index}.roleCode`}
-                      roles={roles}
-                      unitError={errors.roleAssignments?.[index]?.unitCode?.message}
-                      unitName={`roleAssignments.${index}.unitCode`}
-                      units={units}
-                    />
-                  </div>
+                    {index === 0 ? (
+                      <Button
+                        className="w-fit text-primary hover:bg-primary/10 hover:text-primary"
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        isDisabled={isSubmitting || accountLocked}
+                        onPress={() => appendRoleAssignment({ roleCode: "", unitCode: "" })}
+                      >
+                        <IconPlus data-icon="inline-start" aria-hidden="true" />
+                        {t("pages.userManagement.actions.addAnotherRole")}
+                      </Button>
+                    ) : null}
+                  </Fragment>
                 ))}
               </div>
             )}

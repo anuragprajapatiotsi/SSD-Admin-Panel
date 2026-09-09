@@ -3,7 +3,14 @@ import { z } from "zod";
 export function createAssignRoleSchema(t: (key: string) => string) {
   return z.object({
     roleCode: z.string().trim().min(1, t("pages.userManagement.validation.selectRole")),
-    unitCode: z.string().trim().min(1, t("pages.userManagement.validation.selectPillar")),
+    unitCode: z
+      .string()
+      .trim()
+      .min(1, t("pages.userManagement.validation.selectPillar"))
+      .refine(
+        (value) => !["GLOBAL", "GLOBALACCESS"].includes(value.toUpperCase().replace(/[\s_-]+/g, "")),
+        t("pages.userManagement.validation.selectPillar"),
+      ),
   });
 }
 
@@ -13,5 +20,5 @@ export type AssignRoleFormValues = z.infer<typeof assignRoleSchema>;
 
 export const DEFAULT_ASSIGN_ROLE_VALUES: AssignRoleFormValues = {
   roleCode: "",
-  unitCode: "GLOBAL",
+  unitCode: "",
 };

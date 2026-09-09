@@ -54,7 +54,7 @@ export function NewUserPage() {
 
       for (const assignment of values.roleAssignments) {
         const roleCode = assignment.roleCode.trim();
-        const unitCode = assignment.unitCode.trim() || "GLOBAL";
+        const unitCode = assignment.unitCode.trim();
         const assignmentKey = `${roleCode.toUpperCase()}::${unitCode.toUpperCase()}`;
         if (assignedRoleKeys.current.has(assignmentKey)) continue;
 
